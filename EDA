@@ -1,0 +1,30 @@
+library(vegan)
+
+# otu table
+OTUtable <-  read.table('OTU.csv', sep = ",", header = TRUE)
+dim(OTUtable)
+# set index
+rownames(OTUtable) <- OTUtable$SampleID
+OTUtable <- OTUtable[,2:9114]
+dim(OTUtable)
+rownames(OTUtable)
+colnames(OTUtable)
+
+
+# use total number to explore the data distribution 
+df <- data.frame(colSums(OTUtable))
+colnames(df) <- c('total')
+
+# load the meta data(2020 feburary small.....)
+load(file = 'VanitaFeb_uparse_2020-02-28_small_2')
+
+##########################where is order and classand phyllum
+# status table
+statusData <- read.table("host.csv", sep=",", header = TRUE)
+statusData <-  statusData[,c(1,3,5,9)]
+statusData <- statusData[statusData$Quality.score == "Good", ]
+statusData$'Fungal_host_status'[statusData$'Fungal_host_status' == 'native'] = 'Native'
+
+# This is the filtered status data
+colnames(statusData)
+dim(statusData)
