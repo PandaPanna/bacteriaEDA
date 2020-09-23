@@ -1,24 +1,15 @@
 library(vegan)
-
+library(RAM)
 # otu table
 OTUtable <-  read.table('OTU.csv', sep = ",", header = TRUE)
 dim(OTUtable)
 # set index
-rownames(OTUtable) <- OTUtable$SampleID
-OTUtable <- OTUtable[,2:9114]
-dim(OTUtable)
-rownames(OTUtable)
+#rownames(OTUtable) <- OTUtable$SampleID
+#OTUtable <- OTUtable[,2:9114]
 colnames(OTUtable)
+# a lot of otus only occur less than 10 times
+#sort(colSums(OTUtable)) 
 
-
-# use total number to explore the data distribution 
-df <- data.frame(colSums(OTUtable))
-colnames(df) <- c('total')
-
-# load the meta data(2020 feburary small.....)
-load(file = 'VanitaFeb_uparse_2020-02-28_small_2')
-
-##########################where is order and classand phyllum
 # status table
 statusData <- read.table("host.csv", sep=",", header = TRUE)
 statusData <-  statusData[,c(1,3,5,9)]
@@ -28,3 +19,85 @@ statusData$'Fungal_host_status'[statusData$'Fungal_host_status' == 'native'] = '
 # This is the filtered status data
 colnames(statusData)
 dim(statusData)
+
+# add status lable to otutable
+OTU <-merge(x=OTUtable,y=statusData,by="SampleID",all.x=TRUE)
+
+
+
+
+
+# exotic dataframe
+library(dplyr)
+df_e <- filter(OTU, Fungal_host_status == "Exotic")
+colnames(df_e)
+dim(df_e)
+
+# calculate colsums of each otu
+stat_e <- data.frame(colSums(df_e[,2:9114]))
+dim(stat_e)
+
+# create a df to include each otu's count data 
+otu_e <- cbind(otu = rownames(stat_e), stat_e)
+rownames(otu_e) <- 1:nrow(otu_e)
+
+
+# load the meta data(2020 feburary small.....)
+load(file = 'VanitaFeb_uparse_2020-02-28_small_2')
+colnames(bacteriaOtus)
+library(tidyr)
+b <- separate(bacteriaOtus, fullname, paste("name", 1:4, sep="_"), sep = ";", extra="drop")
+colnames(b)[9:11]=c('phylum','class', 'order')
+
+
+# merge otu_e and b to have the phylum label, phylum is the 9th column
+exotic_data <-merge(x=otu_e,y=b[,c(1,9)],by="otu",all.x=TRUE)
+colnames(exotic_data)[2] = "frequency_e"
+
+# calculate total 
+agg_e <- aggregate(frequency_e~phylum, exotic_data,FUN=sum)
+dim(agg_e)
+
+#################Do all the same thing to native data
+
+# Nativer dataframe
+df_n <- filter(OTU, Fungal_host_status == "Native")
+
+# calculate colsums of each otu
+stat_n <- data.frame(colSums(df_n[,2:9114]))
+dim(stat_e)
+# native data is bigger than exotic
+
+
+# create a df to include each otu's count data 
+otu_n <- cbind(otu = rownames(stat_n), stat_n)
+rownames(otu_n) <- 1:nrow(otu_n)
+
+
+# merge otu_e and b to have the phylum label, phylum is the 9th column
+native_data <-merge(x=otu_n,y=b[,c(1,9)],by="otu",all.x=TRUE)
+colnames(native_data)[2] = "frequency_n"
+
+# calculate total 
+agg_n <- aggregate(frequency_n~phylum, native_data,FUN=sum)
+dim(agg_e)
+
+# join agg_n and agg_e
+
+total <- merge(agg_n, agg_e, on="phylum")
+total
+
+
+# plot the two columns
+sum(total$frequency_n)
+
+
+
+barplot(sort(total$frequency_e/sum(total$frequency_e)),
+        names=total$phylum,
+        xlab="Phylum")
+
+
+barplot(sort(total$frequency_n/sum(total$frequency_n)),
+        names=total$phylum,
+        xlab="Phylum")
