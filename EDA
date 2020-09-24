@@ -102,3 +102,27 @@ total['per_e'] <- round(total$frequency_e/sum(total$frequency_e),2)
 d <- cbind(total[,'per_n'],total[,'per_e'])
 colnames(d) <- c('native', 'exotic')
 barplot(d,beside=T, xlab="Phylum", )
+
+
+# Another way to plot two group in one plot
+library(RColorBrewer)
+colors <- colorRampPalette(brewer.pal(9, "Set1"))(14)
+
+total <- total[total$per_n>0.02,]
+
+par(mfrow = c(1:2))
+barplot(total$frequency_e/sum(total$frequency_e),
+        col=colors,
+        xlab=paste("Exotic reads", reads_e),
+        ylab="percentage",
+        ylim = c(0, 1),
+        #legend=total$phylum
+)
+
+
+barplot(total$frequency_n/sum(total$frequency_n),
+        col=colors,
+        xlab=paste("Native reads", reads_n),
+        ylim = c(0, 1),
+        legend=total$phylum
+        )
