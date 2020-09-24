@@ -126,3 +126,64 @@ barplot(total$frequency_n/sum(total$frequency_n),
         ylim = c(0, 1),
         legend=total$phylum
         )
+
+
+#######################order pie chart
+
+# merge otu_e and b to have the phylum label, phylum is the 9th column
+exotic_data <-merge(x=otu_e,y=b[,c(1,11)],by="otu",all.x=TRUE)
+colnames(exotic_data)[2] = "frequency_e"
+
+# calculate total 
+agg_e <- aggregate(frequency_e~order, exotic_data,FUN=sum)
+dim(agg_e)
+
+#################Do all the same thing to native data
+
+
+# merge otu_e and b to have the order 
+native_data <-merge(x=otu_n,y=b[,c(1,11)],by="otu",all.x=TRUE)
+colnames(native_data)[2] = "frequency_n"
+
+# calculate total 
+agg_n <- aggregate(frequency_n~order, native_data,FUN=sum)
+dim(agg_n)
+
+# join agg_n and agg_e
+
+total <- merge(agg_n, agg_e, on="order")
+total
+
+
+# plot the two columns
+
+total['per_n'] <- round(total$frequency_n/sum(total$frequency_n),2)
+total['per_e'] <- round(total$frequency_e/sum(total$frequency_e),2)
+
+d <- cbind(total[,'per_n'],total[,'per_e'])
+colnames(d) <- c('native', 'exotic')
+barplot(d,beside=T, xlab="order", )
+
+
+# Another way to plot two group in one plot
+library(RColorBrewer)
+colors <- colorRampPalette(brewer.pal(9, "Set1"))(14)
+
+total <- total[total$per_n>0.01,]
+
+par(mfrow = c(1:2))
+lbls <- total$order
+slices <- total$frequency_n
+pct <- round(slices/sum(slices)*100)
+lbls <- paste(lbls, pct) # add percents to labels
+lbls <- paste(lbls,"%",sep="") # ad % to labels
+pie(slices,labels = lbls, col=rainbow(length(lbls)),
+    main="Bacterial order in native group")
+
+slices <- total$frequency_e
+pct <- round(slices/sum(slices)*100)
+lbls <- total$order
+lbls <- paste(lbls, pct) # add percents to labels
+lbls <- paste(lbls,"%",sep="") # ad % to labels
+pie(slices,labels = lbls, col=rainbow(length(lbls)),
+    main="Bacterial order in exotic group")
