@@ -30,6 +30,9 @@ OTU <-merge(x=OTUtable,y=statusData,by="SampleID",all.x=TRUE)
 # exotic dataframe
 library(dplyr)
 df_e <- filter(OTU, Fungal_host_status == "Exotic")
+
+# exotic reads
+reads_e <- sum(df_e[2:9114])
 colnames(df_e)
 dim(df_e)
 
@@ -62,6 +65,9 @@ dim(agg_e)
 
 # Nativer dataframe
 df_n <- filter(OTU, Fungal_host_status == "Native")
+# native reads
+reads_n <- sum(df_n[,2:9114])
+
 
 # calculate colsums of each otu
 stat_n <- data.frame(colSums(df_n[,2:9114]))
@@ -88,22 +94,35 @@ total <- merge(agg_n, agg_e, on="phylum")
 total
 
 
-###################
+# plot the two columns
 
-#plot the two columns
+total['per_n'] <- total$frequency_n/sum(total$frequency_n)
+total['per_e'] <- total$frequency_e/sum(total$frequency_e)
 
+d <- cbind(total[,'per_n'],total[,'per_e'])
+colnames(d) <- c('native', 'exotic')
+barplot(d,beside=T, xlab="Phylum", )
+
+
+# Another way to plot two group in one plot
 library(RColorBrewer)
 colors <- colorRampPalette(brewer.pal(9, "Set1"))(14)
 
 
 par(mfrow = c(1:2))
 barplot(total$frequency_e/sum(total$frequency_e),
-        names=total$phylum,
         col=colors,
-        xlab="Phylum")
+        xlab=paste("Exotic reads", reads_e),
+        ylab="percentage",
+        ylim = c(0, 1),
+        #legend=total$phylum
+)
 
 
 barplot(total$frequency_n/sum(total$frequency_n),
-        names=total$phylum,
         col=colors,
-        xlab="Phylum")
+        xlab=paste("Native reads", reads_n),
+        ylim = c(0, 1),
+        #legend=total$phylum
+        )
+
