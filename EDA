@@ -92,22 +92,18 @@ total
 
 #plot the two columns
 
-total['per_n'] <- total$frequency_n/sum(total$frequency_n)
-total['per_e'] <- total$frequency_e/sum(total$frequency_e)
+library(RColorBrewer)
+colors <- colorRampPalette(brewer.pal(9, "Set1"))(14)
 
-d <- cbind(total[,'per_n'],total[,'per_e'])
-colnames(d) <- c('native', 'exotic')
-barplot(d,beside=T, xlab="Phylum", )
-
-
-# Another way to plot two group in one plot
 
 par(mfrow = c(1:2))
 barplot(total$frequency_e/sum(total$frequency_e),
         names=total$phylum,
+        col=colors,
         xlab="Phylum")
 
 
 barplot(total$frequency_n/sum(total$frequency_n),
         names=total$phylum,
+        col=colors,
         xlab="Phylum")
