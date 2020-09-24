@@ -88,16 +88,26 @@ total <- merge(agg_n, agg_e, on="phylum")
 total
 
 
-# plot the two columns
-sum(total$frequency_n)
+###################
+
+#plot the two columns
+
+total['per_n'] <- total$frequency_n/sum(total$frequency_n)
+total['per_e'] <- total$frequency_e/sum(total$frequency_e)
+
+d <- cbind(total[,'per_n'],total[,'per_e'])
+colnames(d) <- c('native', 'exotic')
+barplot(d,beside=T, xlab="Phylum", )
 
 
+# Another way to plot two group in one plot
 
-barplot(sort(total$frequency_e/sum(total$frequency_e)),
+par(mfrow = c(1:2))
+barplot(total$frequency_e/sum(total$frequency_e),
         names=total$phylum,
         xlab="Phylum")
 
 
-barplot(sort(total$frequency_n/sum(total$frequency_n)),
+barplot(total$frequency_n/sum(total$frequency_n),
         names=total$phylum,
         xlab="Phylum")
