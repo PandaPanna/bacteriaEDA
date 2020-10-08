@@ -114,8 +114,9 @@ par(mfrow = c(1:2))
 barplot(total$frequency_e/sum(total$frequency_e),
         col=colors,
         xlab=paste("Exotic reads", reads_e),
-        ylab="percentage",
+        ylab="You can change the y axis label here",
         ylim = c(0, 1),
+        main="you can add title here or make it empty",
         #legend=total$phylum
 )
 
@@ -123,9 +124,11 @@ barplot(total$frequency_e/sum(total$frequency_e),
 barplot(total$frequency_n/sum(total$frequency_n),
         col=colors,
         xlab=paste("Native reads", reads_n),
+        ylab="You can change the y axis label here",
         ylim = c(0, 1),
-        legend=total$phylum
-        )
+        legend=total$phylum,
+        main="you can add title here"
+)
 
 
 #######################order pie chart
@@ -178,7 +181,7 @@ pct <- round(slices/sum(slices)*100)
 lbls <- paste(lbls, pct) # add percents to labels
 lbls <- paste(lbls,"%",sep="") # ad % to labels
 pie(slices,labels = lbls, col=rainbow(length(lbls)),
-    main="Bacterial order in native group")
+    main="You can change the title here")
 
 slices <- total$frequency_e
 pct <- round(slices/sum(slices)*100)
@@ -186,4 +189,5 @@ lbls <- total$order
 lbls <- paste(lbls, pct) # add percents to labels
 lbls <- paste(lbls,"%",sep="") # ad % to labels
 pie(slices,labels = lbls, col=rainbow(length(lbls)),
-    main="Bacterial order in exotic group")
+    main="You can change the title here)
+
